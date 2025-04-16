@@ -12,6 +12,7 @@
         <module>qbot-framework-dependencies</module>
         <module>qbot-framework-starter</module>
         <module>qbot-framework-common</module>
+        <module>qbot-framework-orm</module>
     </modules>
     <properties>
         <maven.compiler.source>21</maven.compiler.source>

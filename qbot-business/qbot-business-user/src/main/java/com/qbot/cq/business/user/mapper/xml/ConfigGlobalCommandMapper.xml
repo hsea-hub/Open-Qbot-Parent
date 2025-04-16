@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qbot.cq.business.user.mapper.ConfigGlobalCommandMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.qbot.cq.business.user.entity.po.ConfigGlobalCommand">
+        <id column="id" property="id" />
+        <result column="includes" property="includes" />
+        <result column="success" property="success" />
+        <result column="fail" property="fail" />
+        <result column="permission" property="permission" />
+        <result column="cache_status" property="cacheStatus" />
+        <result column="create_id" property="createId" />
+        <result column="create_time" property="createTime" />
+        <result column="update_id" property="updateId" />
+        <result column="update_time" property="updateTime" />
+        <result column="strike_out" property="strikeOut" />
+    </resultMap>
+
+</mapper>

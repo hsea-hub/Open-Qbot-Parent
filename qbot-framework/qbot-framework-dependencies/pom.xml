@@ -19,6 +19,12 @@
         <guava.version>33.4.7-jre</guava.version>
         <hutool.version>5.8.37</hutool.version>
         <fastjson2.version>2.0.57</fastjson2.version>
+        <!--            ORM-->
+        <mybatis.version>3.5.11</mybatis.version>
+        <sqlite.version>3.49.1.0</sqlite.version>
+        <druid.version>1.2.24</druid.version>
+        <mybatis.generator.version>3.5.11</mybatis.generator.version>
+        <freemarker.version>2.3.32</freemarker.version>
     </properties>
 
     <dependencyManagement>
@@ -65,7 +71,6 @@
                 <!-- 注意这里是import -->
                 <scope>import</scope>
             </dependency>
-            <!-- https://mvnrepository.com/artifact/com.alibaba.fastjson2/fastjson2 -->
             <dependency>
                 <groupId>com.alibaba.fastjson2</groupId>
                 <artifactId>fastjson2</artifactId>
@@ -80,6 +85,33 @@
                 <groupId>com.google.guava</groupId>
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
+            </dependency>
+
+            <!--            ORM-->
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+                <version>${mybatis.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.xerial</groupId>
+                <artifactId>sqlite-jdbc</artifactId>
+                <version>${sqlite.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.alibaba</groupId>
+                <artifactId>druid-spring-boot-starter</artifactId>
+                <version>${druid.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>com.baomidou</groupId>
+                <artifactId>mybatis-plus-generator</artifactId>
+                <version>${mybatis.generator.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.freemarker</groupId>
+                <artifactId>freemarker</artifactId>
+                <version>${freemarker.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>
