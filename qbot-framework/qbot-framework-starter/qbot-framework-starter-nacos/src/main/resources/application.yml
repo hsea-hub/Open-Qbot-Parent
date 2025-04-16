@@ -1,0 +1,20 @@
+spring:
+  profiles:
+    active: dev
+  cloud:
+    nacos:
+      server-addr: 47.97.21.197:8848
+      config:
+        server-addr: ${spring.cloud.nacos.server-addr}
+        file-extension: yaml
+        refresh-enabled: true
+        group: BEEP_GROUP
+        namespace: ${spring.profiles.active}
+        username: nacos
+        password: nacos
+  config:
+    import:
+      - nacos:share-jdbc.yaml?group=BEEP_GROUP&refreshEnabled=true
+      - nacos:share-mybatis.yaml?group=BEEP_GROUP&refreshEnabled=true
+      - nacos:share-redis.yaml?group=BEEP_GROUP&refreshEnabled=true
+      - nacos:share-beep-common.yaml?group=BEEP_GROUP&refreshEnabled=true
