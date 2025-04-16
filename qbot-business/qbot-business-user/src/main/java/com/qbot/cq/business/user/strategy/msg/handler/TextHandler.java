@@ -3,6 +3,7 @@ package com.qbot.cq.business.user.strategy.msg.handler;
 import com.alibaba.fastjson2.JSON;
 import com.qbot.cq.business.common.entity.bo.MsgBO;
 import com.qbot.cq.business.common.entity.dto.MsgDTO;
+import com.qbot.cq.business.common.entity.dto.hook.SendAtTextDTO;
 import com.qbot.cq.business.common.entity.dto.hook.SendTextMsgDTO;
 import com.qbot.cq.business.common.enums.BooleanEnum;
 import com.qbot.cq.business.common.enums.CommandEnum;
@@ -33,14 +34,19 @@ public class TextHandler implements MsgChannel {
     public void msgHandler(MsgDTO msg) {
         MsgBO msgBO = MsgUtil.msgConvert(msg);
         System.out.println(JSON.toJSONString(msgBO));
-        //命令行提取
+        // 命令行提取
         CommandUtil.CommandRequest commandRequest = CommandUtil.parseCommand(msgBO.getContent());
         CommandEnum match = CommandEnum.match(commandRequest.getCommand());
         if (Objects.isNull(match)) return;
+        // 查询配置命令
         ConfigGlobalCommand configGlobalCommand = configGlobalCommandService.lambdaQuery().eq(ConfigGlobalCommand::getIncludes, match.getName()).one();
         if (Objects.isNull(configGlobalCommand)) return;
+        // 非缓存状态直接返回数据
         if (BooleanEnum.NO.getValue().equals(configGlobalCommand.getCacheStatus())){
-            HookRequestUtil.sendTextMsg(SendTextMsgDTO.builder().wxid(msgBO.getRoomId()).msg(configGlobalCommand.getSuccess()).build());
+//            HookRequestUtil.sendTextMsg(SendTextMsgDTO.builder().wxid(msgBO.getRoomId()).msg(configGlobalCommand.getSuccess()).build());
+            HookRequestUtil.sendAtText(SendAtTextDTO.builder().chatRoomId(msgBO.getRoomId()).wxids(msgBO.getFromUser()).msg(configGlobalCommand.getSuccess()).build());
+        } else {
+            // TODO:缓存状态
         }
     }
 }

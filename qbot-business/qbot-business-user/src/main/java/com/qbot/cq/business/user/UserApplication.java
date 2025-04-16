@@ -21,35 +21,27 @@ import java.util.*;
 @MapperScan(basePackages = "com.qbot.cq.business.user.mapper")
 public class UserApplication {
     public static void main(String[] args) {
-        // 1. 生成用户数据库路径 ~/.qbot/qbot.db
         String userDbPath = System.getProperty("user.home") + File.separator + ".qbot" + File.separator + "qbot.db";
-        System.setProperty("QBOT_DB_PATH", userDbPath); // 提供给 application.yml 使用
+        System.setProperty("QBOT_DB_PATH", userDbPath);
 
-        // 2. 如不存在，初始化数据库（从 resources/bin/qbot.db 拷贝）
         initDbIfNotExists(userDbPath);
-
-        // 3. 拷贝 resources/bin/qbot.db 为临时文件（用于结构比对）
         String templatePath = extractTemplateDbToTempFile();
 
-        // 4. 比对并同步结构（只新增字段/表，不删不改）
         try {
             syncTemplateToUserDb(templatePath, userDbPath);
         } catch (Exception e) {
-            System.err.println("❌ 同步表结构失败：" + e.getMessage());
-            e.printStackTrace();
+            log.error("❌ 同步表结构失败：{}", e.getMessage(), e);
         }
 
         ConfigurableApplicationContext configurableApplicationContext = SpringApplication.run(UserApplication.class, args);
         Environment environment = configurableApplicationContext.getBean(Environment.class);
-        log.info(" >>> Start successful，Access link: http://localhost:{}",environment.getProperty("server.port"));
+        log.info(" >>> Start successful，Access link: http://localhost:{}", environment.getProperty("server.port"));
     }
 
-
-    /** 若 ~/.qbot/qbot.db 不存在，则从 classpath 拷贝 resources/bin/qbot.db */
     private static void initDbIfNotExists(String userDbPath) {
         File dbFile = new File(userDbPath);
         if (dbFile.exists()) {
-            System.out.println("📂 用户数据库已存在：" + userDbPath);
+            log.info("📂 用户数据库已存在：{}", userDbPath);
             return;
         }
         try (InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream("bin/qbot.db")) {
@@ -57,13 +49,12 @@ public class UserApplication {
 
             dbFile.getParentFile().mkdirs();
             Files.copy(in, dbFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
-            System.out.println("✅ 初始化用户数据库成功：" + userDbPath);
+            log.info("✅ 初始化用户数据库成功：{}", userDbPath);
         } catch (IOException e) {
             throw new RuntimeException("❌ 初始化数据库失败", e);
         }
     }
 
-    /** 提取 resources/bin/qbot.db 为临时文件（只用于结构对比） */
     private static String extractTemplateDbToTempFile() {
         try {
             File tempFile = File.createTempFile("qbot-template", ".db");
@@ -78,7 +69,6 @@ public class UserApplication {
         }
     }
 
-    /** 同步结构：新增表、新增字段，不删除、不覆盖 */
     private static void syncTemplateToUserDb(String templateDbPath, String userDbPath) throws Exception {
         try (Connection tplConn = DriverManager.getConnection("jdbc:sqlite:" + templateDbPath);
              Connection userConn = DriverManager.getConnection("jdbc:sqlite:" + userDbPath)) {
@@ -93,7 +83,7 @@ public class UserApplication {
                 String createSql = entry.getValue();
 
                 if (!userTables.contains(table)) {
-                    System.out.println("🆕 创建新表：" + table);
+                    log.info("🆕 创建新表：{}", table);
                     userConn.createStatement().execute(createSql);
                     continue;
                 }
@@ -103,17 +93,16 @@ public class UserApplication {
 
                 for (String col : tplCols) {
                     if (!userCols.contains(col)) {
-                        System.out.println("➕ 表 " + table + " 添加字段：" + col);
+                        log.info("➕ 表 {} 添加字段：{}", table, col);
                         String alterSql = String.format("ALTER TABLE %s ADD COLUMN %s TEXT;", table, col);
                         userConn.createStatement().execute(alterSql);
                     }
                 }
             }
 
-            System.out.println("✅ 数据库结构同步完成 ✅");
+            log.info("✅ 数据库结构同步完成 ✅");
             syncTableOverwrite(tplConn, userConn, "config_global_command");
         }
-
     }
 
     private static Set<String> getTableNames(Connection conn) throws SQLException {
@@ -140,12 +129,13 @@ public class UserApplication {
         }
         return map;
     }
+
     private static void syncTableOverwrite(Connection tplConn, Connection userConn, String tableName) throws SQLException {
         List<Map<String, Object>> templateRows = readAllRows(tplConn, tableName);
-        System.out.println("🧪 模板库 [" + tableName + "] 行数：" + templateRows.size());
+        log.info("🧪 模板库 [{}] 行数：{}", tableName, templateRows.size());
 
         userConn.createStatement().execute("DELETE FROM " + tableName);
-        System.out.println("✅ 已清空用户表：" + tableName);
+        log.info("✅ 已清空用户表：{}", tableName);
 
         for (Map<String, Object> row : templateRows) {
             StringBuilder cols = new StringBuilder();
@@ -167,13 +157,13 @@ public class UserApplication {
                 }
                 ps.executeUpdate();
             } catch (SQLException e) {
-                System.err.println("❌ 插入失败，SQL = " + sql);
-                e.printStackTrace();
+                log.error("❌ 插入失败，SQL = {}", sql, e);
             }
         }
 
-        System.out.println("✅ 表 [" + tableName + "] 同步完成，已覆盖 " + templateRows.size() + " 行");
+        log.info("✅ 表 [{}] 同步完成，已覆盖 {} 行", tableName, templateRows.size());
     }
+
     private static List<Map<String, Object>> readAllRows(Connection conn, String tableName) throws SQLException {
         List<Map<String, Object>> list = new ArrayList<>();
         ResultSet rs = conn.createStatement().executeQuery("SELECT * FROM " + tableName);
@@ -189,5 +179,4 @@ public class UserApplication {
         }
         return list;
     }
-
 }
