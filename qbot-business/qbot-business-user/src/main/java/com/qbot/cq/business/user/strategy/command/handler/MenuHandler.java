@@ -15,6 +15,6 @@ public class MenuHandler implements CommandChannel {
 
     @Override
     public Boolean commandHandler(CommandUtil.CommandRequest commandRequest, MsgBO msgBO) {
-        return null;
+       return true;
     }
 }

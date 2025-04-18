@@ -7,6 +7,7 @@ import lombok.Getter;
 @Getter
 public enum CommandEnum {
     MENU("测试菜单"),
+    PLAY_MAHJONG("打麻将"),
     ;
     private String name;
 
