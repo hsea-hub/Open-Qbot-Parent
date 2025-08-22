@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qbot.cq.business.user.mapper.GameMahJongMapper">
+
+    <!-- 通用查询映射结果 -->
+    <resultMap id="BaseResultMap" type="com.qbot.cq.business.user.entity.po.GameMahJong">
+        <id column="id" property="id" />
+        <result column="bot_id" property="botId" />
+        <result column="room_id" property="roomId" />
+        <result column="wxid" property="wxid" />
+        <result column="nick_name" property="nickName" />
+        <result column="total_card_wall" property="totalCardWall" />
+        <result column="cur_card_wall" property="curCardWall" />
+        <result column="cur_index" property="curIndex" />
+        <result column="cur_card" property="curCard" />
+        <result column="room_status" property="roomStatus" />
+        <result column="create_id" property="createId" />
+        <result column="create_time" property="createTime" />
+        <result column="update_id" property="updateId" />
+        <result column="update_time" property="updateTime" />
+        <result column="strike_out" property="strikeOut" />
+        <result column="version" property="version" />
+    </resultMap>
+
+</mapper>

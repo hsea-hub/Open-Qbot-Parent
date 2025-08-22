@@ -1,6 +1,9 @@
 package com.qbot.cq.business.common.utils;
 
+import com.alibaba.fastjson2.JSON;
+
 import java.util.*;
+import java.util.stream.Collectors;
 
 public final class MahjongDaqueUtils {
 
@@ -9,7 +12,17 @@ public final class MahjongDaqueUtils {
     /**
      * 四川麻将三门花色（升序：万→条→筒）
      */
-    public enum Suit {WAN, TIAO, TONG}
+    public enum Suit {WAN, TIAO, TONG,
+        ;
+        public String toChinese() {
+            switch (this) {
+                case WAN: return "万";
+                case TIAO: return "条";
+                case TONG: return "筒";
+                default: return "";
+            }
+        }
+    }
 
     /**
      * 用户动作枚举
@@ -81,7 +94,28 @@ public final class MahjongDaqueUtils {
     public static String tileToString(Tile t) {
         return t.toString();
     }
-
+    /**
+     * 将手牌序列化为 JSON 字符串
+     * @param tiles 牌列表
+     * @return JSON 字符串
+     */
+    public static String tilesToJson(List<Tile> tiles) {
+        List<String> list = tiles.stream()
+                .map(MahjongDaqueUtils::tileToString)
+                .collect(Collectors.toList());
+        return JSON.toJSONString(list);
+    }
+    /**
+     * 从 JSON 字符串反序列化为牌列表
+     * @param json JSON 字符串（如 ["1万","2条"]）
+     * @return 牌对象列表
+     */
+    public static List<Tile> jsonToTiles(String json) {
+        List<String> strs = JSON.parseArray(json, String.class);
+        return strs.stream()
+                .map(MahjongDaqueUtils::parseTile)
+                .collect(Collectors.toList());
+    }
     /**
      * 动作字符串 → {@link Action}（未知/空 = DISCARD）
      */
@@ -108,7 +142,21 @@ public final class MahjongDaqueUtils {
                 throw new IllegalArgumentException("未知花色:" + c);
         }
     }
-
+    /**
+     * 比较两个 Tile 列表，找出 before 中被移除的牌（即 before - after）
+     * 考虑重复张数，即 multiset 差集
+     *
+     * @param before 原始手牌
+     * @param after  操作后的手牌
+     * @return 被移除的牌列表（按张数比较）
+     */
+    public static List<Tile> diffRemovedTiles(List<Tile> before, List<Tile> after) {
+        List<Tile> removed = new ArrayList<>(before);
+        for (Tile t : after) {
+            removed.remove(t);  // 每次只移除一个匹配项（考虑重复）
+        }
+        return removed;
+    }
     /* ──────────────────────── 牌墙生成 / 持久化 ─────────────────────── */
 
     /**
@@ -134,7 +182,8 @@ public final class MahjongDaqueUtils {
     /**
      * 数据库字符串列表
      */
-    public static Deque<Tile> wallFromStrings(Collection<String> strs) {
+    public static Deque<Tile> wallFromStrings(String json) {
+        List<String> strs = JSON.parseArray(json, String.class);
         Deque<Tile> dq = new ArrayDeque<>();
         strs.forEach(s -> dq.add(parseTile(s)));
         return dq;
@@ -143,12 +192,12 @@ public final class MahjongDaqueUtils {
     /**
      * 牌墙
      */
-    public static List<String> wallToStrings(Deque<Tile> wall) {
+    public static String wallToStrings(Deque<Tile> wall) {
         List<String> list = new ArrayList<>(wall.size());
         Iterator<Tile> it = wall.descendingIterator(); // top → bottom
         while (it.hasNext()) list.add(tileToString(it.next()));
         Collections.reverse(list);                     // 调整 list[0] = top
-        return list;
+        return JSON.toJSONString(list);
     }
 
     /**
@@ -231,7 +280,22 @@ public final class MahjongDaqueUtils {
     }
 
     /* ────────────────────────── 规则判定工具 ────────────────────────── */
+    /**
+     * 将“缺筒 / 缺条 / 缺万”转为 Suit 枚举
+     */
+    public static Suit parseMissingSuit(String text) {
+        if (text == null) return null;
+        text = text.trim();
+        if (!text.startsWith("缺") || text.length() != 2) return null;
 
+        char suitChar = text.charAt(1);
+        switch (suitChar) {
+            case '万': return Suit.WAN;
+            case '条': return Suit.TIAO;
+            case '筒': return Suit.TONG;
+            default: return null;
+        }
+    }
     /**
      * 升序比较器
      */
@@ -470,21 +534,27 @@ public final class MahjongDaqueUtils {
     }
 
     public static void main(String[] args) {
+        int i = nextPlayer(4, 4);
+        System.out.println(i);
         /*
          * 简易文字演示：
          * - 只控制东家（玩家 0），其余 3 家由程序随机打牌
          * - 支持指令：摸 / 碰 / 杠 / 胡 / 7条（出牌） / 7条 出
-         * - 输入 exit 退出
          */
         Deque<Tile> wall = new ArrayDeque<>(shuffle(buildWall()));
+        String s = wallToStrings(wall);
+        System.out.println("wall: " +s);
+        Deque<Tile> wall1 = wallFromStrings(s);
+        System.out.println(wall1);
         List<List<Tile>> hands = deal(wall, 4, 0);      // 4 人，东家 0
         List<Tile> myHand = hands.get(0);
         Suit miss = suggestMissingSuit(myHand);
         Tile incoming = null;   // 上家打出的牌
 
         System.out.println("=== 四川麻将文字演示 ===");
-        System.out.println("你的缺门: " + miss);
+        System.out.println("你的缺门: " + miss.toChinese());
         System.out.println("起手: " + myHand);
+        System.out.println("wall: " + wall);
         System.out.println("指令示例: 碰 / 杠 / 胡 / 7条");
 
         try (java.util.Scanner sc = new java.util.Scanner(System.in)) {

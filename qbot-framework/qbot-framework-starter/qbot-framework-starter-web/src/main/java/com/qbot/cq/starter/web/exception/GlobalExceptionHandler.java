@@ -39,7 +39,6 @@ public class GlobalExceptionHandler {
      */
     @ExceptionHandler(value = Exception.class)
     public ResultVO<?> exceptionHandler(HttpServletRequest req, Exception e) {
-        Map<String, String[]> parameterMap = req.getParameterMap();
         e.printStackTrace();
         // 国际化处理
         return ResultVO.builder()

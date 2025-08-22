@@ -34,6 +34,8 @@ public class TextHandler implements MsgChannel {
 
     @Autowired
     private CommandFactory commandFactory;
+    @Autowired
+    private GameCommonHandler gameCommonHandler;
 
     @Autowired
     private IConfigGlobalCommandService configGlobalCommandService;
@@ -47,6 +49,7 @@ public class TextHandler implements MsgChannel {
         MsgBO msgBO = MsgUtil.msgConvert(msg);
         String key = msgBO.getRoomId() + msgBO.getFromUser();
         System.out.println(JSON.toJSONString(msgBO));
+        gameCommonHandler.commandHandler(msgBO);
         // 命令行提取
         CommandUtil.CommandRequest commandRequest = CommandUtil.parseCommand(msgBO.getContent());
         CommandEnum match = CommandEnum.match(commandRequest.getCommand());

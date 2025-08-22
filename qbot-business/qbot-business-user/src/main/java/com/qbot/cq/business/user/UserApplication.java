@@ -2,10 +2,12 @@ package com.qbot.cq.business.user;
 
 import lombok.extern.slf4j.Slf4j;
 import org.mybatis.spring.annotation.MapperScan;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.core.env.Environment;
+import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,7 +21,9 @@ import java.util.*;
 @Slf4j
 @SpringBootApplication
 @MapperScan(basePackages = "com.qbot.cq.business.user.mapper")
+@EnableScheduling
 public class UserApplication {
+
     public static void main(String[] args) {
         String userDbPath = System.getProperty("user.home") + File.separator + ".qbot" + File.separator + "qbot.db";
         System.setProperty("QBOT_DB_PATH", userDbPath);

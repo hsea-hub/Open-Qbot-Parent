@@ -30,12 +30,13 @@ public class CodeGenerator {
                         .controller("controller")
                 )
                 .strategyConfig(builder -> builder
-                        .addInclude("config_global_command") // 可支持多个表
+                        .addInclude("gama_mah_jong_detail") // 可支持多个表
                         .entityBuilder()
                         .enableLombok()
                         .addTableFills(
                                 new Column("create_time", FieldFill.INSERT),
                                 new Column("create_id", FieldFill.INSERT),
+                                new Column("version", FieldFill.INSERT),
                                 new Column("strike_out", FieldFill.INSERT)
                         )
                         .mapperBuilder().enableBaseResultMap()

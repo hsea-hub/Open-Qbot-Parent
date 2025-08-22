@@ -7,6 +7,7 @@ public class MsgDTO {
     private String content;
     private String displayFullContent;
     private String fromUser;
+    private String fromNickname;
     private Long msgId;
     private Long msgSequence;
     private String toUser;

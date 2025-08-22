@@ -13,6 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 public class MsgBO {
     private String content;
+    private String displayFullContent;
+    private String fromNickname;
     private List<String> atWxids;
     private String roomId;
     private String fromUser;

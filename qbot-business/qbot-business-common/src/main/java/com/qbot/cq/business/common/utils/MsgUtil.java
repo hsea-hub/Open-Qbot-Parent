@@ -20,6 +20,9 @@ public class MsgUtil {
                 .msgSequence(msgDTO.getMsgSequence())
                 .type(msgDTO.getType())
                 .roomId(msgDTO.getFromUser())
+                .displayFullContent(msgDTO.getDisplayFullContent())
+                .fromNickname(msgDTO.getFromNickname())
+                .toUser(msgDTO.getToUser())
                 .build();
         parseAndSetMsgSource(msgDTO.getSignature(),msgBO);
         extractSetSenderAndContent(msgDTO.getContent(),msgDTO.getFromUser(),msgBO);
