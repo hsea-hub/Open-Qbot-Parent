@@ -19,6 +19,7 @@
         <guava.version>33.4.7-jre</guava.version>
         <hutool.version>5.8.37</hutool.version>
         <fastjson2.version>2.0.57</fastjson2.version>
+        <jsoup.version>1.21.1</jsoup.version>
         <!--            ORM-->
         <mybatis.version>3.5.11</mybatis.version>
         <sqlite.version>3.49.1.0</sqlite.version>
@@ -86,7 +87,11 @@
                 <artifactId>guava</artifactId>
                 <version>${guava.version}</version>
             </dependency>
-
+            <dependency>
+                <groupId>org.jsoup</groupId>
+                <artifactId>jsoup</artifactId>
+                <version>${jsoup.version}</version>
+            </dependency>
             <!--            ORM-->
             <dependency>
                 <groupId>com.baomidou</groupId>

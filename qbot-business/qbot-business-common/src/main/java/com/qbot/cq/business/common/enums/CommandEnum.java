@@ -8,6 +8,7 @@ import lombok.Getter;
 public enum CommandEnum {
     MENU("测试菜单"),
     PLAY_MAHJONG("打麻将"),
+    SEARCH_FOR_NOVELS("搜小说"),
     ;
     private String name;
 
